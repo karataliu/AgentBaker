@@ -35,7 +35,6 @@ if [ -n "${VNET_RESOURCE_GROUP_NAME}" ]; then
 	VIRTUAL_NETWORK_NAME="vnet"
 	VIRTUAL_NETWORK_SUBNET_NAME="subnet"
 	NETWORK_SECURITY_GROUP_NAME="nsg"
-	CURRENT_VM_PUBLIC_IP=$(curl -4 icanhazip.com)
 
 	echo "creating resource group ${VNET_RESOURCE_GROUP_NAME}, location ${AZURE_LOCATION} for VNET"
 	az group create --name ${VNET_RESOURCE_GROUP_NAME} --location ${AZURE_LOCATION} \
@@ -44,15 +43,10 @@ if [ -n "${VNET_RESOURCE_GROUP_NAME}" ]; then
 	echo "creating new network security group ${NETWORK_SECURITY_GROUP_NAME}"
 	az network nsg create --name $NETWORK_SECURITY_GROUP_NAME --resource-group ${VNET_RESOURCE_GROUP_NAME} --location ${AZURE_LOCATION} \
 		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline'
-	echo "creating nsg rule to allow WinRM with ssl"
-	az network nsg rule create --resource-group ${VNET_RESOURCE_GROUP_NAME} --nsg-name $NETWORK_SECURITY_GROUP_NAME -n AllowWinRM --priority 100 \
-		--source-address-prefixes "${CURRENT_VM_PUBLIC_IP}" --source-port-ranges '*' \
-		--destination-address-prefixes '*' --destination-port-ranges 5986 --access Allow \
-		--protocol Tcp --description "Allow agent pool VM to WinRM with SSL 5986."
-	echo "creating default nsg rule to deny all internet inbound"
+	echo "creating default nsg rule to allow all internet inbound"
 	az network nsg rule create --resource-group ${VNET_RESOURCE_GROUP_NAME} --nsg-name $NETWORK_SECURITY_GROUP_NAME -n DenyAll --priority 4096 \
 		--source-address-prefixes '*' --source-port-ranges '*' \
-		--destination-address-prefixes '*' --destination-port-ranges '*' --access Deny \
+		--destination-address-prefixes '*' --destination-port-ranges '*' --access Allow \
 		--protocol '*' --description "Deny all inbound by default"
 
 	echo "creating new vnet ${VIRTUAL_NETWORK_NAME}, subnet ${VIRTUAL_NETWORK_SUBNET_NAME}"
