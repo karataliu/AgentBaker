@@ -35,19 +35,20 @@ if [ -n "${VNET_RESOURCE_GROUP_NAME}" ]; then
 	VIRTUAL_NETWORK_NAME="vnet"
 	VIRTUAL_NETWORK_SUBNET_NAME="subnet"
 	NETWORK_SECURITY_GROUP_NAME="nsg"
+	CURRENT_VM_PUBLIC_IP=$(curl -4 icanhazip.com)
 
 	echo "creating resource group ${VNET_RESOURCE_GROUP_NAME}, location ${AZURE_LOCATION} for VNET"
 	az group create --name ${VNET_RESOURCE_GROUP_NAME} --location ${AZURE_LOCATION} \
-		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline' 'SkipASMAzSecPack=True'
+		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline'
 
 	echo "creating new network security group ${NETWORK_SECURITY_GROUP_NAME}"
 	az network nsg create --name $NETWORK_SECURITY_GROUP_NAME --resource-group ${VNET_RESOURCE_GROUP_NAME} --location ${AZURE_LOCATION} \
-		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline' 'SkipNRMSMgmt=13854625'
+		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline'
 	echo "creating nsg rule to allow WinRM with ssl"
 	az network nsg rule create --resource-group ${VNET_RESOURCE_GROUP_NAME} --nsg-name $NETWORK_SECURITY_GROUP_NAME -n AllowWinRM --priority 100 \
-		--source-address-prefixes '*' --source-port-ranges '*' \
+		--source-address-prefixes "${CURRENT_VM_PUBLIC_IP}" --source-port-ranges '*' \
 		--destination-address-prefixes '*' --destination-port-ranges 5986 --access Allow \
-		--protocol Tcp --description "Allow all inbound to WinRM with SSL 5986."
+		--protocol Tcp --description "Allow agent pool VM to WinRM with SSL 5986."
 	echo "creating default nsg rule to deny all internet inbound"
 	az network nsg rule create --resource-group ${VNET_RESOURCE_GROUP_NAME} --nsg-name $NETWORK_SECURITY_GROUP_NAME -n DenyAll --priority 4096 \
 		--source-address-prefixes '*' --source-port-ranges '*' \
@@ -57,7 +58,7 @@ if [ -n "${VNET_RESOURCE_GROUP_NAME}" ]; then
 	echo "creating new vnet ${VIRTUAL_NETWORK_NAME}, subnet ${VIRTUAL_NETWORK_SUBNET_NAME}"
 	az network vnet create --resource-group ${VNET_RESOURCE_GROUP_NAME} --name $VIRTUAL_NETWORK_NAME --address-prefix 10.0.0.0/16 \
 		--subnet-name $VIRTUAL_NETWORK_SUBNET_NAME --subnet-prefix 10.0.0.0/24 --network-security-group $NETWORK_SECURITY_GROUP_NAME \
-		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline' 'SkipASMAzSecPack=True'
+		--tags 'os=Windows' 'createdBy=aks-vhd-pipeline'
 fi
 
 avail=$(az storage account check-name -n ${STORAGE_ACCOUNT_NAME} -o json | jq -r .nameAvailable)
