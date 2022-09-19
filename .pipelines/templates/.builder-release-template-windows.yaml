@@ -116,6 +116,7 @@ steps:
         targetPath: 'release-notes.txt'
 
 # Default Gen 1: packer VHD=>VHD in classic SA
+# Credentials are without the BUILD prefix because we need AME account to copy to the classic SA
   - script: |
       echo MODE=$(MODE) && \
       OS_DISK_SAS="$(cat packer-output | grep -a "OSDiskUriReadOnlySas:" | cut -d " " -f 2)" && \
@@ -153,7 +154,6 @@ steps:
         -e TENANT_ID=${BUILD_TENANT_ID} \
         -e SUBSCRIPTION_ID="${BUILD_SUBSCRIPTION_ID}" \
         -e RESOURCE_GROUP_NAME="${BUILD_AZURE_RESOURCE_GROUP_NAME}" \
-        -e CREATE_TIME="${create_time}" \
         -e LOCATION="${BUILD_AZURE_LOCATION}" \
         -e OS_TYPE="Windows" \
         -e CLASSIC_BLOB=${STORAGE_ACCT_BLOB_URL} \
@@ -162,7 +162,7 @@ steps:
         -e GEN2_CAPTURED_SIG_VERSION=${gen2_captured_sig_version} \
         ${CONTAINER_IMAGE} make -f packer.mk convert-sig-to-classic-storage-account-blob
     displayName: Convert Shared Image Gallery To VHD Blob In Classic Storage Account
-    condition: and(eq(variables.DRY_RUN, 'False'), eq(variables.GEN2_SIG_FOR_PRODUCTION, 'True'))
+    condition: eq(variables.GEN2_SIG_FOR_PRODUCTION, 'True')
 
 # SA_NAME:             Temporary storage account name
 # IMPORTED_IMAGE_NAME: Build output for sigMode is SIG. Packer does not support building a SIG from raw
@@ -173,7 +173,7 @@ steps:
 #                      Used to define the IMAGE_NAME below.
 # IMAGE_NAME:          Managed image created by packer: ManagedImageName in log. No longer used.
 #                      Can be cleaned up in this step.
-  - bash: |beyon
+  - bash: |
       echo MODE=$(MODE) && \
       PKR_RG_NAME="$(cat packer-output | grep -a "ResourceGroupName" | cut -d "'" -f 2 | head -1)" && \
       SA_NAME="$(cat packer-output | grep -a "storage name:" | cut -d " " -f 3)" && \
