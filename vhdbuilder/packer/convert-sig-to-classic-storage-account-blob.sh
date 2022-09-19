@@ -28,6 +28,9 @@ echo "SIG_GALLERY_NAME_FROM_JSON is ${SIG_GALLERY_NAME_FROM_JSON}"
 sig_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/galleries/${SIG_GALLERY_NAME}/images/${SIG_IMAGE_NAME}/versions/${GEN2_CAPTURED_SIG_VERSION}"
 disk_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/disks/${GEN2_CAPTURED_SIG_VERSION}"
 
+echo "sig_resource_id is ${sig_resource_id}"
+echo "disk_resource_id is ${disk_resource_id}"
+
 az resource create --id $disk_resource_id  --is-full-object --location $LOCATION --properties "{\"location\": \"$LOCATION\", \
   \"properties\": { \
     \"osType\": \"$OS_TYPE\", \
