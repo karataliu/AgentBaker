@@ -22,6 +22,9 @@ if [[ -z "$SIG_GALLERY_NAME" ]]; then
   SIG_GALLERY_NAME="PackerSigGalleryEastUS"
 fi
 
+echo "SIG_GALLERY_NAME is ${SIG_GALLERY_NAME}"
+echo "SIG_GALLERY_NAME_FROM_JSON is ${SIG_GALLERY_NAME_FROM_JSON}"
+
 sig_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/galleries/${SIG_GALLERY_NAME}/images/${SIG_IMAGE_NAME}/versions/${GEN2_CAPTURED_SIG_VERSION}"
 disk_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/disks/${GEN2_CAPTURED_SIG_VERSION}"
 

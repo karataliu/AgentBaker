@@ -143,9 +143,11 @@ steps:
         cat vhdbuilder/packer/settings.json && \
         gen2_captured_sig_version="$(cat vhdbuilder/packer/settings.json | grep "gen2_captured_sig_version" | awk -F':' '{print $2}' | awk -F'"' '{print $2}')" && \
         SIG_IMAGE_NAME="$(cat vhdbuilder/packer/settings.json | grep "sig_image_name" | awk -F':' '{print $2}' | awk -F'"' '{print $2}')" && \
+        SIG_GALLERY_NAME_FROM_JSON="$(cat vhdbuilder/packer/settings.json | grep "sig_gallery_name" | awk -F':' '{print $2}' | awk -F'"' '{print $2}')" && \
         echo "gen 2 captured sig version is $gen2_captured_sig_version" && \
         echo "SIG IMAGE NAME is $SIG_IMAGE_NAME" && \
         echo "SIG GALLERY NAME is $SIG_GALLERY_NAME" && \
+        echo "SIG GALLERY NAME from settings.json is $SIG_GALLERY_NAME_FROM_JSON" && \
         docker run --rm \
         -v ${PWD}:/go/src/github.com/Azure/AgentBaker \
         -w /go/src/github.com/Azure/AgentBaker \
@@ -159,6 +161,8 @@ steps:
         -e CLASSIC_BLOB=${STORAGE_ACCT_BLOB_URL} \
         -e CLASSIC_SAS_TOKEN=${STORAGE_ACCT_SAS_TOKEN} \
         -e SIG_IMAGE_NAME=${SIG_IMAGE_NAME} \
+        -e SIG_GALLERY_NAME=${SIG_GALLERY_NAME} \
+        -e SIG_GALLERY_NAME_FROM_JSON=${SIG_GALLERY_NAME_FROM_JSON} \
         -e GEN2_CAPTURED_SIG_VERSION=${gen2_captured_sig_version} \
         ${CONTAINER_IMAGE} make -f packer.mk convert-sig-to-classic-storage-account-blob
     displayName: Convert Shared Image Gallery To VHD Blob In Classic Storage Account
