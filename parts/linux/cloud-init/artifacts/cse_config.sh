@@ -456,6 +456,8 @@ configGPUDrivers() {
     # install gpu driver
     mkdir -p /opt/{actions,gpu}
     if [[ "${CONTAINER_RUNTIME}" == "containerd" ]]; then
+        #Debug
+        echo "Pulling image $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG for ctr"
         ctr image pull $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG
         bash -c "$CTR_GPU_INSTALL_CMD $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG gpuinstall /entrypoint.sh install" 
         ret=$?
@@ -465,6 +467,8 @@ configGPUDrivers() {
         fi
         ctr images rm --sync $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG
     else
+        #Debug
+        echo "Pulling image $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG for docker"
         bash -c "$DOCKER_GPU_INSTALL_CMD $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG install" 
         ret=$?
         if [[ "$ret" != "0" ]]; then

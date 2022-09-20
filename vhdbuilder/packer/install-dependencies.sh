@@ -202,8 +202,13 @@ if [[ $OS == $UBUNTU_OS_NAME && $(isARM64) != 1 ]]; then  # no ARM64 SKU with GP
     gpu_action="install"
   fi
 
+  #Debug
+  echo "Pulling image $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG for install-dependencies"
+
   mkdir -p /opt/{actions,gpu}
   if [[ "${CONTAINER_RUNTIME}" == "containerd" ]]; then
+    #Debug
+    echo "Pulling image $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG for ctr in ID"
     ctr image pull $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG
     bash -c "$CTR_GPU_INSTALL_CMD $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG gpuinstall /entrypoint.sh $gpu_action" 
     ret=$?
@@ -212,6 +217,8 @@ if [[ $OS == $UBUNTU_OS_NAME && $(isARM64) != 1 ]]; then  # no ARM64 SKU with GP
       exit $ret
     fi
   else
+    #Debug
+    echo "Pulling image $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG for docker in ID"
     bash -c "$DOCKER_GPU_INSTALL_CMD $NVIDIA_DRIVER_IMAGE:$NVIDIA_DRIVER_IMAGE_TAG $gpu_action"
     ret=$?
     if [[ "$ret" != "0" ]]; then
