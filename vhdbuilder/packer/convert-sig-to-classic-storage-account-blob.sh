@@ -18,17 +18,22 @@ do
     fi
 done
 
+# Default to this hard-coded value for Linux does not pass this environment variable into here
 if [[ -z "$SIG_GALLERY_NAME" ]]; then
   SIG_GALLERY_NAME="PackerSigGalleryEastUS"
 fi
 
-# Assign $GEN2_CAPTURED_SIG_VERSION to $SIG_IMAGE_VERSION for Linux. Use $SIG_IMAGE_VERSION for Windows Gen 2.
+echo "SIG_IMAGER_VERSION before checking and assigning is $SIG_IMAGE_VERSION"
+# Windows Gen 2: use the passed environment variable $SIG_IMAGE_VERSION
+# Linux Gen 2: assign $GEN2_CAPTURED_SIG_VERSION to $SIG_IMAGE_VERSION
 if [[ -z "$SIG_IMAGE_VERSION" ]]; then
   SIG_IMAGE_VERSION=${GEN2_CAPTURED_SIG_VERSION}
 fi
 
 echo "SIG_GALLERY_NAME is ${SIG_GALLERY_NAME}"
 echo "SIG_GALLERY_NAME_FROM_JSON is ${SIG_GALLERY_NAME_FROM_JSON}"
+echo "GEN2_CAPTURED_SIG_VERSION is ${GEN2_CAPTURED_SIG_VERSION}"
+echo "SIG_IMAGE_VERSION is ${SIG_IMAGE_VERSION}"
 
 sig_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/galleries/${SIG_GALLERY_NAME}/images/${SIG_IMAGE_NAME}/versions/${SIG_IMAGE_VERSION}"
 disk_resource_id="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/disks/${GEN2_CAPTURED_SIG_VERSION}"
@@ -47,9 +52,16 @@ az resource create --id $disk_resource_id  --is-full-object --location $LOCATION
     } \
   } \
 }"
+
+echo "Disk resource created"
 # shellcheck disable=SC2102
 sas=$(az disk grant-access --ids $disk_resource_id --duration-in-seconds 3600 --query [accessSas] -o tsv)
 
+echo "Sas to access source VHD disk blob under build sub generated!"
+
+echo "Trying to azcopy-preview copy"
+echo "CLASSIC_BLOB is ${CLASSIC_BLOB}"
+echo "GEN2_CAPTURED_SIG_VERSION is ${GEN2_CAPTURED_SIG_VERSION}"
 azcopy-preview copy "${sas}" "${CLASSIC_BLOB}/${GEN2_CAPTURED_SIG_VERSION}.vhd${CLASSIC_SAS_TOKEN}" --recursive=true
 
 echo "Converted $sig_resource_id to ${CLASSIC_BLOB}/${GEN2_CAPTURED_SIG_VERSION}.vhd"
