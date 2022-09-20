@@ -149,6 +149,8 @@ steps:
         echo "SIG IMAGE NAME is $SIG_IMAGE_NAME" && \
         echo "SIG GALLERY NAME is $SIG_GALLERY_NAME" && \
         echo "SIG GALLERY NAME from settings.json is $SIG_GALLERY_NAME_FROM_JSON" && \
+        echo "STORAGE ACCT BLOB URL is $(STORAGE_ACCT_BLOB_URL)"
+        echo "STORAGE ACCT BLOB URL is ${STORAGE_ACCT_BLOB_URL}"
         docker run --rm \
         -v ${PWD}:/go/src/github.com/Azure/AgentBaker \
         -w /go/src/github.com/Azure/AgentBaker \
@@ -159,15 +161,13 @@ steps:
         -e RESOURCE_GROUP_NAME="${BUILD_AZURE_RESOURCE_GROUP_NAME}" \
         -e LOCATION="${BUILD_AZURE_LOCATION}" \
         -e OS_TYPE="Windows" \
-        -e CLASSIC_BLOB=${STORAGE_ACCT_BLOB_URL} \
+        -e CLASSIC_BLOB=$(STORAGE_ACCT_BLOB_URL) \
         -e CLASSIC_SAS_TOKEN=$(STORAGE_ACCT_SAS_TOKEN) \
         -e SIG_IMAGE_NAME=${SIG_IMAGE_NAME} \
         -e SIG_GALLERY_NAME=${SIG_GALLERY_NAME} \
         -e SIG_GALLERY_NAME_FROM_JSON=${SIG_GALLERY_NAME_FROM_JSON} \
         -e SIG_IMAGE_VERSION=${SIG_IMAGE_VERSION} \
         -e GEN2_CAPTURED_SIG_VERSION=${gen2_captured_sig_version} \
-        -e AZCOPY_SPA_CLIENT_SECRET=${CLIENT_SECRET} \
-        -e PRODUCTION_CLIENT_ID=${CLIENT_ID} \
         ${CONTAINER_IMAGE} make -f packer.mk convert-sig-to-classic-storage-account-blob
     displayName: Convert Shared Image Gallery To VHD Blob In Classic Storage Account
     condition: eq(variables.GEN2_SIG_FOR_PRODUCTION, 'True')
