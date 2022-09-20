@@ -62,6 +62,10 @@ echo "Sas to access source VHD disk blob under build sub generated!"
 echo "Trying to azcopy-preview copy"
 echo "CLASSIC_BLOB is ${CLASSIC_BLOB}"
 echo "GEN2_CAPTURED_SIG_VERSION is ${GEN2_CAPTURED_SIG_VERSION}"
+echo "INFO: Authenticating to destination after setting the environment variable AZCOPY_SPA_CLIENT_SECRET to the client secret for secret based service principal auth."
+azcopy login --service-principal --application-id ${PRODUCTION_CLIENT_ID}
+echo "azcopy login successful"
+
 azcopy-preview copy "${sas}" "${CLASSIC_BLOB}/${GEN2_CAPTURED_SIG_VERSION}.vhd${CLASSIC_SAS_TOKEN}" --recursive=true
 
 echo "Converted $sig_resource_id to ${CLASSIC_BLOB}/${GEN2_CAPTURED_SIG_VERSION}.vhd"

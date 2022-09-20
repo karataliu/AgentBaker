@@ -164,8 +164,10 @@ steps:
         -e SIG_IMAGE_NAME=${SIG_IMAGE_NAME} \
         -e SIG_GALLERY_NAME=${SIG_GALLERY_NAME} \
         -e SIG_GALLERY_NAME_FROM_JSON=${SIG_GALLERY_NAME_FROM_JSON} \
-        -e SIG_IMAGE_VERSION=${SIG_IMAGE_VERSION}
+        -e SIG_IMAGE_VERSION=${SIG_IMAGE_VERSION} \
         -e GEN2_CAPTURED_SIG_VERSION=${gen2_captured_sig_version} \
+        -e AZCOPY_SPA_CLIENT_SECRET=${CLIENT_SECRET} \
+        -e PRODUCTION_CLIENT_ID=${CLIENT_ID} \
         ${CONTAINER_IMAGE} make -f packer.mk convert-sig-to-classic-storage-account-blob
     displayName: Convert Shared Image Gallery To VHD Blob In Classic Storage Account
     condition: eq(variables.GEN2_SIG_FOR_PRODUCTION, 'True')
